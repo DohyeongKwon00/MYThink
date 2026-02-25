@@ -36,6 +36,9 @@ build/
 .mypy_cache/
 .ruff_cache/
 
+# Claude
+.claude/
+
 # IDEs
 .vscode/
 .idea/
