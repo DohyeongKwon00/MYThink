@@ -10,6 +10,7 @@ class SessionResponse(BaseModel):
     id: str
     subject: str
     title: Optional[str] = None
+    created_at: Optional[str] = None
 
 
 class VizData(BaseModel):
@@ -29,6 +30,7 @@ class ChatResponse(BaseModel):
     role: str
     content: str
     viz_data: Optional[VizData] = None
+    artifact: Optional[str] = None
 
 
 class NoteResponse(BaseModel):

@@ -1,7 +1,7 @@
 # MYT — AI Tutor
 
 A personalized AI tutoring prototype for subjects like math and physics.
-Chat with an AI tutor, get auto-generated study notes, and visualize math functions in 3D.
+Chat with an AI tutor, get auto-generated study notes, and explore interactive 3D simulations.
 
 ## Features
 
@@ -9,7 +9,10 @@ Chat with an AI tutor, get auto-generated study notes, and visualize math functi
 - **AI chat** — GPT-4o with subject-specific system prompts
 - **Conversation memory** — pgvector embeddings for semantic context retrieval
 - **Auto-generated notes** — Markdown study notes summarized from the conversation
-- **3D visualization** — Function graphs rendered with Three.js when the tutor references a math function
+- **Interactive simulations** — Three.js-powered 3D simulations generated on-the-fly for physics/math topics
+- **3D visualization** — Function graphs rendered with React Three Fiber
+- **Session management** — Create, resume, and delete tutoring sessions
+- **LaTeX rendering** — Math expressions rendered with KaTeX
 
 ## Tech Stack
 
@@ -19,6 +22,7 @@ Chat with an AI tutor, get auto-generated study notes, and visualize math functi
 | Backend | FastAPI, Python, OpenAI SDK |
 | Database | Supabase (PostgreSQL + pgvector) |
 | 3D | @react-three/fiber, @react-three/drei |
+| Math | KaTeX, remark-math, rehype-katex |
 
 ## Project Structure
 
@@ -32,15 +36,18 @@ MYT/
 ├── frontend/
 │   └── src/
 │       ├── app/
-│       │   ├── page.tsx                    # Subject selection
+│       │   ├── page.tsx                    # Home — subject selection & session list
+│       │   ├── layout.tsx                  # Root layout
+│       │   ├── globals.css                 # Global styles
 │       │   └── chat/[sessionId]/page.tsx   # Chat page
 │       ├── components/
-│       │   ├── Chat.tsx          # Message list + input
+│       │   ├── Chat.tsx          # Message list, input, simulation & notes modals
 │       │   ├── NotePanel.tsx     # Study notes panel
 │       │   └── ThreeCanvas.tsx   # 3D graph renderer
 │       ├── lib/api.ts            # apiFetch helper
 │       └── types/index.ts        # Shared TypeScript types
-└── supabase_setup.sql            # Database schema
+├── supabase_setup.sql            # Database schema
+└── dev.ps1                       # Run backend + frontend together (Windows)
 ```
 
 ## Getting Started
@@ -48,10 +55,6 @@ MYT/
 ### 1. Database
 
 Run `supabase_setup.sql` in the [Supabase SQL Editor](https://supabase.com/dashboard).
-
-```sql
--- Creates: sessions, messages (with pgvector), notes tables
-```
 
 ### 2. Backend
 
@@ -65,9 +68,9 @@ uvicorn app.main:app --reload
 
 **`.env` keys:**
 ```
-SUPABASE_URL=
-SUPABASE_SERVICE_KEY=
-OPENAI_API_KEY=
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_KEY=your-service-role-key
+OPENAI_API_KEY=sk-...
 FRONTEND_URL=http://localhost:3000
 ```
 
@@ -83,16 +86,26 @@ npm run dev
 
 **`.env.local` keys:**
 ```
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 NEXT_PUBLIC_API_URL=http://localhost:8000
+```
+
+### Quick Start (Windows)
+
+Run both backend and frontend from the root folder:
+
+```powershell
+.\dev.ps1
 ```
 
 ## API Endpoints
 
 | Method | Path | Description |
 |--------|------|-------------|
+| GET | `/api/sessions` | List recent sessions |
 | POST | `/api/sessions` | Create a new tutoring session |
+| DELETE | `/api/sessions/{session_id}` | Delete a session and its data |
 | GET | `/api/chat/{session_id}` | Get all messages in a session |
 | POST | `/api/chat` | Send a message, get AI response |
 | POST | `/api/notes/{session_id}` | Generate study notes from conversation |

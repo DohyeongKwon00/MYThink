@@ -13,10 +13,13 @@
     "@react-three/fiber": "^9.5.0",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.97.0",
+    "katex": "^0.16.33",
     "next": "^16.1.6",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-markdown": "^10.1.0",
+    "rehype-katex": "^7.0.1",
+    "remark-math": "^6.0.0",
     "three": "^0.183.1"
   },
   "devDependencies": {

@@ -4,6 +4,7 @@ export interface Session {
   id: string;
   subject: string;
   title?: string;
+  created_at?: string;
 }
 
 export interface Message {
@@ -11,6 +12,7 @@ export interface Message {
   role: "user" | "assistant";
   content: string;
   viz_data?: VizData;
+  artifact?: string;
 }
 
 export interface VizData {
