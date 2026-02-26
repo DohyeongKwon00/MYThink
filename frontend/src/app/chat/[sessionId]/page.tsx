@@ -16,7 +16,7 @@ export default function ChatPage({ params }: { params: Promise<{ sessionId: stri
   }, []);
 
   return (
-    <div className="fixed inset-0 bg-gray-950 text-white flex">
+    <div className="fixed inset-0 flex">
       <Chat sessionId={sessionId} />
     </div>
   );

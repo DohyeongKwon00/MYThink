@@ -1,27 +1,74 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { apiFetch } from "@/lib/api";
 import type { Session } from "@/types";
 
 const SUBJECTS = [
-  { id: "math", label: "Mathematics", description: "Algebra, calculus, geometry and more", icon: "∑" },
-  { id: "physics", label: "Physics", description: "Mechanics, electromagnetism, quantum theory", icon: "⚛" },
-  { id: "chemistry", label: "Chemistry", description: "Organic, inorganic, physical chemistry", icon: "⚗" },
-  { id: "biology", label: "Biology", description: "Cell biology, genetics, ecology", icon: "🧬" },
+  {
+    id: "math",
+    label: "Mathematics",
+    description: "Algebra, Geometry, Calculus and more with step-by-step logic.",
+    icon: "functions",
+    colorBg: "bg-blue-500/20",
+    colorText: "text-blue-400",
+  },
+  {
+    id: "biology",
+    label: "Biology",
+    description: "Deep dive into anatomy, genetics, and ecosystems.",
+    icon: "biotech",
+    colorBg: "bg-emerald-500/20",
+    colorText: "text-emerald-400",
+  },
+  {
+    id: "chemistry",
+    label: "Chemistry",
+    description: "Periodic table, chemical reactions, and molecular structures.",
+    icon: "science",
+    colorBg: "bg-amber-500/20",
+    colorText: "text-amber-400",
+  },
+  {
+    id: "physics",
+    label: "Physics",
+    description: "Classical mechanics, thermodynamics, and electromagnetism.",
+    icon: "bolt",
+    colorBg: "bg-purple-500/20",
+    colorText: "text-purple-400",
+  },
+  {
+    id: "literature",
+    label: "Literature",
+    description: "Analyze texts, understand themes, and master essay writing.",
+    icon: "menu_book",
+    colorBg: "bg-rose-500/20",
+    colorText: "text-rose-400",
+  },
+  {
+    id: "cs",
+    label: "Computer Science",
+    description: "Coding logic, algorithms, and software design principles.",
+    icon: "terminal",
+    colorBg: "bg-indigo-500/20",
+    colorText: "text-indigo-400",
+  },
 ];
 
 const SUBJECT_ICONS: Record<string, string> = {
-  math: "∑",
-  physics: "⚛",
-  chemistry: "⚗",
-  biology: "🧬",
+  math: "functions",
+  physics: "bolt",
+  chemistry: "science",
+  biology: "biotech",
+  literature: "menu_book",
+  cs: "terminal",
 };
 
 export default function Home() {
   const router = useRouter();
   const [sessions, setSessions] = useState<Session[]>([]);
+  const subjectsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     apiFetch<Session[]>("/api/sessions").then(setSessions).catch(console.error);
@@ -45,71 +92,160 @@ export default function Home() {
     }
   }
 
-  function formatDate(iso?: string) {
-    if (!iso) return "";
-    return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
-  }
-
   return (
-    <main className="min-h-screen bg-gray-950 text-white flex flex-col items-center py-16 px-8">
-      <h1 className="text-5xl font-bold mb-2 tracking-tight">MYT</h1>
-      <p className="text-gray-400 mb-12 text-lg">Your AI-powered personal tutor</p>
-
-      <div className="w-full max-w-2xl space-y-10">
-        {/* New session */}
-        <div>
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-4">New Session</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {SUBJECTS.map((s) => (
-              <button
-                key={s.id}
-                onClick={() => startSession(s.id)}
-                className="group flex flex-col gap-2 rounded-2xl border border-gray-800 bg-gray-900 p-6 text-left transition hover:border-indigo-500 hover:bg-gray-800"
-              >
-                <span className="text-3xl">{s.icon}</span>
-                <span className="text-xl font-semibold group-hover:text-indigo-400 transition">{s.label}</span>
-                <span className="text-sm text-gray-400">{s.description}</span>
-              </button>
-            ))}
+    <div className="flex h-screen overflow-hidden bg-[#101622] text-white">
+      {/* Sidebar */}
+      <aside className="w-72 flex-shrink-0 border-r border-slate-800 bg-slate-900/50 flex flex-col">
+        {/* Logo */}
+        <div className="p-6 flex items-center gap-3">
+          <div className="size-10 rounded-xl bg-blue-600 flex items-center justify-center text-white">
+            <span className="material-symbols-outlined" style={{ fontSize: "22px" }}>school</span>
+          </div>
+          <div>
+            <h1 className="text-base font-bold leading-tight">MYThink AI</h1>
+            <p className="text-xs text-slate-400">Academic Excellence</p>
           </div>
         </div>
 
-        {/* Recent sessions */}
-        {sessions.length > 0 && (
-          <div>
-            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-widest mb-4">Recent Sessions</h2>
-            <div className="flex flex-col gap-2">
-              {sessions.map((s) => (
+        {/* Start New Chat */}
+        <div className="px-4 mb-6">
+          <button
+            onClick={() => subjectsRef.current?.scrollIntoView({ behavior: "smooth" })}
+            className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl transition-all"
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: "18px" }}>add</span>
+            <span className="text-sm">Start New Chat</span>
+          </button>
+        </div>
+
+        {/* Recent Sessions */}
+        <div className="flex-1 overflow-y-auto px-3 custom-scrollbar">
+          <div className="px-3 py-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+            Recent Sessions
+          </div>
+          <div className="space-y-0.5">
+            {sessions.map((s) => (
+              <div
+                key={s.id}
+                onClick={() => router.push(`/chat/${s.id}`)}
+                className="group flex items-center justify-between p-3 rounded-lg hover:bg-slate-800 cursor-pointer transition-colors"
+              >
+                <div className="flex items-center gap-3 overflow-hidden">
+                  <span className="material-symbols-outlined text-slate-400" style={{ fontSize: "18px" }}>
+                    {SUBJECT_ICONS[s.subject] ? SUBJECT_ICONS[s.subject] : "chat_bubble"}
+                  </span>
+                  <span className="truncate text-sm font-medium text-slate-300">{s.title ?? s.subject}</span>
+                </div>
+                <button
+                  onClick={(e) => deleteSession(e, s.id)}
+                  className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-400 transition-opacity ml-2 flex-shrink-0"
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>delete</span>
+                </button>
+              </div>
+            ))}
+            {sessions.length === 0 && (
+              <p className="text-xs text-slate-500 px-3 py-2">No sessions yet</p>
+            )}
+          </div>
+        </div>
+
+        {/* Bottom Nav */}
+        <div className="border-t border-slate-800 p-4 space-y-1">
+          <div className="flex items-center gap-3 px-3 py-2 text-slate-400 hover:bg-slate-800 rounded-lg cursor-pointer transition-colors">
+            <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>settings</span>
+            <span className="text-sm font-medium">Settings</span>
+          </div>
+          <div className="flex items-center gap-3 px-3 py-2 text-slate-400 hover:bg-slate-800 rounded-lg cursor-pointer transition-colors">
+            <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>help</span>
+            <span className="text-sm font-medium">Help Center</span>
+          </div>
+          <div className="flex items-center gap-3 px-3 py-2 text-red-400 hover:bg-red-950/30 rounded-lg cursor-pointer transition-colors">
+            <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>logout</span>
+            <span className="text-sm font-medium">Log Out</span>
+          </div>
+        </div>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 overflow-y-auto custom-scrollbar">
+        {/* Header */}
+        <header className="sticky top-0 z-10 bg-[#101622]/80 backdrop-blur-md px-10 py-4 flex items-center justify-between border-b border-slate-800/50">
+          <div className="max-w-xl w-full">
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" style={{ fontSize: "20px" }}>search</span>
+              <input
+                className="w-full pl-12 pr-4 py-2.5 bg-slate-900 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500/50 transition-all text-sm text-white placeholder-slate-500"
+                placeholder="Search previous chat sessions..."
+                type="text"
+              />
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <button className="bg-blue-600/10 hover:bg-blue-600/20 text-blue-400 text-sm font-bold px-4 py-2 rounded-lg transition-colors border border-blue-600/20">
+              Upgrade Pro
+            </button>
+            <div className="size-10 rounded-full bg-slate-700 border-2 border-blue-600/20 overflow-hidden cursor-pointer flex items-center justify-center">
+              <span className="material-symbols-outlined text-slate-300" style={{ fontSize: "22px" }}>person</span>
+            </div>
+          </div>
+        </header>
+
+        {/* Content */}
+        <div className="max-w-6xl mx-auto px-10 py-8">
+          {/* Welcome */}
+          <div className="mb-12">
+            <h2 className="text-4xl font-black text-white mb-2 tracking-tight">Welcome back, Scholar!</h2>
+            <p className="text-slate-400 text-lg">What would you like to master today?</p>
+          </div>
+
+          {/* Subjects Grid */}
+          <div ref={subjectsRef} className="mb-12">
+            <h3 className="text-xl font-bold mb-6 flex items-center gap-2 text-white">
+              <span className="material-symbols-outlined text-blue-500" style={{ fontSize: "22px" }}>grid_view</span>
+              Your Subjects
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {SUBJECTS.map((s) => (
                 <div
                   key={s.id}
-                  onClick={() => router.push(`/chat/${s.id}`)}
-                  className="group/row flex items-center gap-4 rounded-xl border border-gray-800 bg-gray-900 px-5 py-4 text-left transition hover:border-indigo-500 hover:bg-gray-800 cursor-pointer"
+                  onClick={() => startSession(s.id)}
+                  className="group bg-slate-900 border border-slate-800 rounded-2xl p-6 hover:shadow-xl hover:shadow-blue-600/5 hover:border-blue-600/30 transition-all cursor-pointer"
                 >
-                  <span className="text-2xl">{SUBJECT_ICONS[s.subject] ?? "💬"}</span>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-200 truncate">
-                      {s.title ?? s.subject}
-                    </p>
-                    {s.title && (
-                      <p className="text-xs text-gray-500 capitalize">{s.subject}</p>
-                    )}
+                  <div className={`${s.colorBg} w-14 h-14 rounded-xl flex items-center justify-center ${s.colorText} mb-5 group-hover:scale-110 transition-transform`}>
+                    <span className="material-symbols-outlined" style={{ fontSize: "28px" }}>{s.icon}</span>
                   </div>
-                  <span className="text-xs text-gray-500 shrink-0">{formatDate(s.created_at)}</span>
-                  <button
-                    onClick={(e) => deleteSession(e, s.id)}
-                    className="opacity-0 group-hover/row:opacity-100 shrink-0 rounded-lg p-1.5 text-gray-500 transition hover:bg-red-500/20 hover:text-red-400"
-                    aria-label="Delete session"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-                      <path fillRule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clipRule="evenodd" />
-                    </svg>
-                  </button>
+                  <h4 className="text-xl font-bold mb-2 text-white">{s.label}</h4>
+                  <p className="text-slate-400 text-sm mb-4">{s.description}</p>
+                  <div className="flex items-center text-blue-400 font-semibold text-sm gap-1">
+                    Open Subject
+                    <span className="material-symbols-outlined" style={{ fontSize: "16px" }}>arrow_forward</span>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
-        )}
-      </div>
-    </main>
+
+          {/* Feature Banner */}
+          <div className="bg-slate-900 rounded-3xl p-8 border border-slate-800 flex items-center justify-between gap-8">
+            <div className="max-w-md">
+              <span className="inline-block bg-blue-600 text-white text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded mb-4">
+                New Feature
+              </span>
+              <h4 className="text-2xl font-bold mb-3 text-white">Multi-Subject Exams are Here!</h4>
+              <p className="text-slate-400 mb-6">
+                Test your knowledge across multiple subjects in a single timed session. Perfect for final prep.
+              </p>
+              <button className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 px-6 rounded-lg transition-all">
+                Try it Now
+              </button>
+            </div>
+            <div className="hidden lg:flex w-64 h-48 bg-blue-600/10 rounded-2xl items-center justify-center flex-shrink-0">
+              <span className="material-symbols-outlined text-blue-600/30" style={{ fontSize: "96px" }}>quiz</span>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
   );
 }
